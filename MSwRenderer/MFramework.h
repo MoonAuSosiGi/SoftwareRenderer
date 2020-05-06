@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 
 /*
 	MFramework 
 	Singletone class.
-	µå·ÎÀ× / ¾÷µ¥ÀÌÆ®¸¦ ´ã´çÇÕ´Ï´Ù.
+	ë“œë¡œì‰ / ì—…ë°ì´íŠ¸ë¥¼ ë‹´ë‹¹í•©ë‹ˆë‹¤.
 
 */
 
@@ -28,7 +28,7 @@ public:
 	bool SetupFramework( int screenWidth, int screenHeight );
 	void ReleaseFramework();
 
-	// ¸®»çÀÌÁî½Ã È£ÃâµÇ´Â ÇÔ¼ö 
+	// ë¦¬ì‚¬ì´ì¦ˆì‹œ í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜ 
 	void ResizeWindow( HWND hWnd, UINT NewWidth, UINT NewHeight );	
 	int MessagePump();
 	// ----------------------- //
@@ -38,7 +38,7 @@ public:
 
 	bool IsGameLoop() { return m_bLoop; }
 
-	// °£´ÜÇÑ ¼³¸í Ãâ·Â
+	// ê°„ë‹¨í•œ ì„¤ëª… ì¶œë ¥
 	void ShowInfo();
 
 public:

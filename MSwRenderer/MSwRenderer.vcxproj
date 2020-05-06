@@ -151,6 +151,7 @@
     <ClCompile Include="MSwRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MEngine.h" />
     <ClInclude Include="MFramework.h" />
     <ClInclude Include="MSwRenderer.h" />
   </ItemGroup>

@@ -1,21 +1,22 @@
-#include "MFramework.h"
+ï»¿#include "MFramework.h"
+#include "MEngine.h"
 /*
  MSWRenderer 
 
  main.cpp
- - WinAPI ÇÁ·ÎÁ§Æ® ±¸¼º
+ - WinAPI í”„ë¡œì íŠ¸ êµ¬ì„±
  
  MoonAuSosiGi / moonausosigi@gmail.com
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-// WinMain :: ¸ÞÀÎ ÇÔ¼ö
+// WinMain :: ë©”ì¸ í•¨ìˆ˜
 //
-int APIENTRY WinMain(HINSTANCE	hInstance,	// ÀÎ½ºÅÏ½º
-	HINSTANCE	hPrevInstance,				// Àü ÇÁ·Î±×·¥ ÀÎ½ºÅÏ½º
-	LPSTR		lpCmdLine,					// ÇÁ·Î±×·¥ ¿ÜºÎ¿¡¼­ ¹Þ¾Æ¿À´Â ÀÎÀÚ
-	int		nCmdShow)						// ÀÀ¿ëÇÁ·Î±×·¥ Ãâ·Â ÇüÅÂ 
+int APIENTRY WinMain(HINSTANCE	hInstance,	// ì¸ìŠ¤í„´ìŠ¤
+	HINSTANCE	hPrevInstance,				// ì „ í”„ë¡œê·¸ëž¨ ì¸ìŠ¤í„´ìŠ¤
+	LPSTR		lpCmdLine,					// í”„ë¡œê·¸ëž¨ ì™¸ë¶€ì—ì„œ ë°›ì•„ì˜¤ëŠ” ì¸ìž
+	int		nCmdShow)						// ì‘ìš©í”„ë¡œê·¸ëž¨ ì¶œë ¥ í˜•íƒœ 
 {
 	MFramework* framework = MFramework::GetInstance();
 
@@ -24,20 +25,20 @@ int APIENTRY WinMain(HINSTANCE	hInstance,	// ÀÎ½ºÅÏ½º
 		// ------------------------------------------- //
 		// Framework Setup
 		// ------------------------------------------- //
-		if ( !framework->SetupFramework( 800, 600 ) )
+		if ( framework->SetupFramework( 800, 600 ) == M_FAIL )
 			return 0;
 
 		// ------------------------------------------- //
-		// ¸ÞÀÎ ·çÇÁ
+		// ë©”ì¸ ë£¨í”„
 		// ------------------------------------------- //
 		while ( framework->IsGameLoop() )
 		{
-			if ( !framework->MessagePump() )
+			if ( framework->MessagePump() == M_FAIL )
 				break;
 
 		}
 		// ------------------------------------------- //
-		// ¾îÇÃ¸®ÄÉÀÌ¼Ç Á¾·á
+		// ì–´í”Œë¦¬ì¼€ì´ì…˜ ì¢…ë£Œ
 		// ------------------------------------------- //
 		framework->ReleaseFramework();
 	}

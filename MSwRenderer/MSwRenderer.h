@@ -1,12 +1,13 @@
-#pragma once
+ï»¿#pragma once
 
 #include <windows.h>
+#include "MEngine.h"
 class MSWRenderer
 {
 private:
 	static MSWRenderer* m_instance;
 
-	// ·»´õÅ¸°Ù ±¸¼º ÇÚµé
+	// ë Œë”íƒ€ê²Ÿ êµ¬ì„± í•¸ë“¤
 	HWND m_hWnd;
 	HBITMAP m_hBmpRT;
 	HDC m_hSurfaceRT;
@@ -14,7 +15,7 @@ private:
 	int m_nRenderTargetWidth = 0;
 	int m_nRenderTargetHeight = 0;
 
-	// ½Ã½ºÅÛ ÆùÆ®
+	// ì‹œìŠ¤í…œ í°íŠ¸
 	HFONT m_hSysFont;
 	COLORREF m_SysFnColor = RGB( 0, 255, 0 );
 private:
@@ -23,6 +24,11 @@ private:
 
 	int CreateRenderTarget( HWND hWnd, int renderTargetWidth, int renderTargetHeight );
 	void ReleaseRenderTarget();
+
+private:
+	int _VertexPipeLine();
+	int _GeometryPipeLine();
+	int _PixelPipeLine();
 public:
 	static MSWRenderer* GetInstance();
 
@@ -36,5 +42,8 @@ public:
 
 	void DrawFPS( int x, int y );
 	int DrawText( int x, int y, COLORREF col, char* msg, ... );
+
+	int DrawPrimitive( MASG3PRIMITIVETYPE primitiveType, UINT StartVertex, UINT PrimitiveCount );
+
 	
 };

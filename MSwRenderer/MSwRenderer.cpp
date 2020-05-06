@@ -1,4 +1,4 @@
-#include "MSwRenderer.h"
+ï»¿#include "MSwRenderer.h"
 #include <stdio.h>
 #include "mmsystem.h"
 
@@ -18,13 +18,13 @@ MSWRenderer* MSWRenderer::GetInstance()
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // SetupDevice 
-// ·»´õÅ¸°Ù »ı¼º ¹× ±âÅ¸ ·»´õ·¯ ÃÊ±âÈ­ ·ÎÁ÷À» ¼öÇà
+// ë Œë”íƒ€ê²Ÿ ìƒì„± ë° ê¸°íƒ€ ë Œë”ëŸ¬ ì´ˆê¸°í™” ë¡œì§ì„ ìˆ˜í–‰
 //
 int MSWRenderer::SetupDevice( HWND hWnd, int renderTargetWidth, int renderTargetHeight )
 {
 	CreateRenderTarget( hWnd, renderTargetWidth, renderTargetHeight );
 
-	// ½Ã½ºÅÛ ÆùÆ® »ı¼º.
+	// ì‹œìŠ¤í…œ í°íŠ¸ ìƒì„±.
 	//
 	m_hSysFont = CreateFont(
 		12, 6,
@@ -34,7 +34,7 @@ int MSWRenderer::SetupDevice( HWND hWnd, int renderTargetWidth, int renderTarget
 		CLIP_DEFAULT_PRECIS,
 		DEFAULT_QUALITY,
 		FF_DONTCARE,
-		( LPSTR )"±¼¸²"
+		( LPSTR )"êµ´ë¦¼"
 	);
 	if ( m_hSysFont == NULL )
 	{
@@ -48,20 +48,51 @@ int MSWRenderer::SetupDevice( HWND hWnd, int renderTargetWidth, int renderTarget
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // ReleaseDevice 
-// µğ¹ÙÀÌ½º ÇØÁ¦
+// ë””ë°”ì´ìŠ¤ í•´ì œ
 //
 void MSWRenderer::ReleaseDevice()
 {
 	ReleaseRenderTarget();
 
-	// ÆùÆ® Á¦°Å
+	// í°íŠ¸ ì œê±°
 	DeleteObject( m_hSysFont );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
+// _VertexPipeLine
+// ë²„í…ìŠ¤ íŒŒì´í”„ë¼ì¸ -> ì •ì  ì—°ì‚°ì„ ìˆ˜í–‰í•˜ê³ , ê²°ê³¼ëŠ” GP ë¡œ ë„˜ì–´ê°„ë‹¤.
+//
+int MSWRenderer::_VertexPipeLine()
+{
+	return M_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// 
+// _GeoMetryPipeLine 
+// ì§€ì˜¤ë©”íŠ¸ë¦¬ íŒŒì´í”„ë¼ì¸ -> ê¸°í•˜ ì—°ì‚°ì„ ìˆ˜í–‰í•˜ê³ , ê²°ê³¼ëŠ” PP ë¡œ ë„˜ì–´ê°„ë‹¤.
+//
+int MSWRenderer::_GeometryPipeLine()
+{
+	return M_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// _PixelPipeLine
+// í”½ì…€ íŒŒì´í”„ë¼ì¸ -> í”½ì…€ë‹¹ ì—°ì‚°ì„ ìˆ˜í–‰í•˜ê³ , ê²°ê³¼ëŠ” RTì— ê¸°ë¡ëœë‹¤.
+//
+int MSWRenderer::_PixelPipeLine()
+{
+	return M_SUCCESS;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 // CreateRenderTarget 
-// SW ·»´õ·¯ ·»´õ Å¸°Ù »ı¼º
+// SW ë Œë”ëŸ¬ ë Œë” íƒ€ê²Ÿ ìƒì„±
 //
 int MSWRenderer::CreateRenderTarget( HWND hWnd, int renderTargetWidth, int renderTargetHeight )
 {
@@ -79,7 +110,7 @@ int MSWRenderer::CreateRenderTarget( HWND hWnd, int renderTargetWidth, int rende
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // ReleaseRenderTarget
-// ·»´õÅ¸°Ù Á¦°Å
+// ë Œë”íƒ€ê²Ÿ ì œê±°
 //
 void MSWRenderer::ReleaseRenderTarget()
 {
@@ -90,11 +121,11 @@ void MSWRenderer::ReleaseRenderTarget()
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // BeginScene
-// ·»´õ Á÷Àü ÀÛ¾÷ ¼öÇà
+// ë Œë” ì§ì „ ì‘ì—… ìˆ˜í–‰
 //
 int MSWRenderer::BeginScene()
 {
-	//ÆùÆ® ¹è°æ»ö ±âº»°ª 
+	//í°íŠ¸ ë°°ê²½ìƒ‰ ê¸°ë³¸ê°’ 
 	SetBkMode( m_hSurfaceRT, TRANSPARENT );
 	return TRUE;
 }
@@ -102,7 +133,7 @@ int MSWRenderer::BeginScene()
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // EndScene
-// ·»´õ¸µ Á¾·á ÈÄ ÀÛ¾÷ ¼öÇà
+// ë Œë”ë§ ì¢…ë£Œ í›„ ì‘ì—… ìˆ˜í–‰
 //
 int MSWRenderer::EndScene()
 {
@@ -112,7 +143,7 @@ int MSWRenderer::EndScene()
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // Present
-// RTÀÇ ³»¿ëÀ» Front Buffer¿¡ Ãâ·Â
+// RTì˜ ë‚´ìš©ì„ Front Bufferì— ì¶œë ¥
 //
 int MSWRenderer::Present()
 {
@@ -126,7 +157,7 @@ int MSWRenderer::Present()
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // ClearColor
-// ·»´õÅ¸°Ù Å¬¸®¾î
+// ë Œë”íƒ€ê²Ÿ í´ë¦¬ì–´
 //
 int MSWRenderer::ClearColor( COLORREF color )
 {
@@ -143,7 +174,7 @@ int MSWRenderer::ClearColor( COLORREF color )
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // DrawFPS
-// FPS Ãâ·Â
+// FPS ì¶œë ¥
 //
 void MSWRenderer::DrawFPS( int x, int y )
 {
@@ -158,14 +189,14 @@ void MSWRenderer::DrawFPS( int x, int y )
 
 	char msg[80];
 	int time = GetTickCount() - oldtime;
-	if ( time >= 999 )						// 0~999 ¹Ğ¸®¼¼ÄÁµå.. 1~1000ÀÌ ¾Æ´Ô
+	if ( time >= 999 )						// 0~999 ë°€ë¦¬ì„¸ì»¨ë“œ.. 1~1000ì´ ì•„ë‹˜
 	{
 		oldtime = GetTickCount();
 
-		//1ÃÊ°£ Áõ°¡µÈ ÇÁ·¹ÀÓ ¼ö¸¦ ±¸ÇÕ´Ï´Ù..
+		//1ì´ˆê°„ ì¦ê°€ëœ í”„ë ˆì„ ìˆ˜ë¥¼ êµ¬í•©ë‹ˆë‹¤..
 		frm = frmcnt;	frmcnt = 0;
 
-		//ÃÊ´ç ÇÁ·¡ÀÓ ¼ö¸¦ °è»êÇÕ´Ï´Ù.
+		//ì´ˆë‹¹ í”„ë˜ì„ ìˆ˜ë¥¼ ê³„ì‚°í•©ë‹ˆë‹¤.
 		fps = ( float ) ( frm * 1000 ) / ( float ) time;
 	}
 
@@ -177,7 +208,7 @@ void MSWRenderer::DrawFPS( int x, int y )
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // DrawText
-// TEXT Ãâ·Â
+// TEXT ì¶œë ¥
 //
 int MSWRenderer::DrawText( int x, int y, COLORREF col, char* msg, ... )
 {
@@ -192,4 +223,19 @@ int MSWRenderer::DrawText( int x, int y, COLORREF col, char* msg, ... )
 	SetTextColor( m_hSurfaceRT, m_SysFnColor );
 
 	return res;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// DrawPrimitive
+// ê¸°í•˜ ë°ì´í„° ë Œë”ë§
+//
+// ì´ ë©”ì†Œë“œ í˜¸ì¶œ ì „ì— ì •ì ë²„í¼ / FVF / ë§ˆë”” í¬ê¸° (Stride) ë“± ë Œë”ë§ì— í•„ìš”í•œ ì •ë³´ê°€
+// ì„¸íŒ…ë˜ì–´ ìˆì–´ì•¼ í•¨
+//
+int MSWRenderer::DrawPrimitive( MASG3PRIMITIVETYPE primitiveType, UINT StartVertex, UINT PrimitiveCount )
+{
+	//if(MASG_INVALIED() )
+
+	return M_SUCCESS;
 }

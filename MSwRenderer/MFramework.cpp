@@ -1,5 +1,6 @@
-#include "MFramework.h"
+ï»¿#include "MFramework.h"
 #include "MSwRenderer.h"
+#include "MEngine.h"
 
 MFramework* MFramework::m_instance = nullptr;
 
@@ -21,12 +22,12 @@ MFramework* MFramework::GetInstance()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-//  ÇÃ·§Æû ¼¼ÆÃ ¹× µ¥ÀÌÅÍ ·Îµå. ÇöÀç windows ±âÁØÀ¸·Î ÀÛ¼ºµÇ¾ú´Ù.
+//  í”Œëž«í¼ ì„¸íŒ… ë° ë°ì´í„° ë¡œë“œ. í˜„ìž¬ windows ê¸°ì¤€ìœ¼ë¡œ ìž‘ì„±ë˜ì—ˆë‹¤.
 //
 bool MFramework::SetupFramework( int screenWidth, int screenHeight )
 {
 	// ---------------------------------------------------------------------//
-// À©µµ¿ì Å¬·¡½º ±¸Á¶Ã¼ µî·Ï
+// ìœˆë„ìš° í´ëž˜ìŠ¤ êµ¬ì¡°ì²´ ë“±ë¡
 // ---------------------------------------------------------------------//
 	WNDCLASSEX wc = {
 		sizeof( WNDCLASSEX ),CS_CLASSDC,MsgProc,0,0,
@@ -35,11 +36,11 @@ bool MFramework::SetupFramework( int screenWidth, int screenHeight )
 		NULL,m_className,NULL
 	};
 
-	// µî·Ï
+	// ë“±ë¡
 	RegisterClassEx( &wc );
 
 	// ---------------------------------------------------------------------//
-	// À©µµ¿ì »ý¼º
+	// ìœˆë„ìš° ìƒì„±
 	// ---------------------------------------------------------------------//
 	HWND hWnd = ::CreateWindow( m_className, m_windowName,
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
@@ -48,30 +49,30 @@ bool MFramework::SetupFramework( int screenWidth, int screenHeight )
 		GetDesktopWindow(), NULL,
 		wc.hInstance, NULL
 	);
-	// À©µµ¿ì »ý¼ºÀÌ ¾ÈµÇ¾úÀ» °æ¿ì 
-	if ( hWnd == NULL ) return FALSE;
+	// ìœˆë„ìš° ìƒì„±ì´ ì•ˆë˜ì—ˆì„ ê²½ìš° 
+	if ( hWnd == NULL ) return M_FAIL;
 
-	// À©µµ¿ì º¸¿©ÁÖ±â
+	// ìœˆë„ìš° ë³´ì—¬ì£¼ê¸°
 	::ShowWindow( hWnd, SW_SHOWDEFAULT );
 	::UpdateWindow( hWnd );
 
-	// À©µµ¿ì ÇÚµé º¹»ç.
+	// ìœˆë„ìš° í•¸ë“¤ ë³µì‚¬.
 	m_hWnd = hWnd;
 
-	//Å¬¶óÀÌ¾ðÆ® ¿µ¿ª Å©±â ÀçÁ¶Á¤ 
+	//í´ë¼ì´ì–¸íŠ¸ ì˜ì—­ í¬ê¸° ìž¬ì¡°ì • 
 	ResizeWindow( m_hWnd, screenWidth, screenHeight );
 
-	// SW Renderer ¼¼ÆÃ
+	// SW Renderer ì„¸íŒ…
 	if ( MSWRenderer::GetInstance()->SetupDevice( m_hWnd, screenWidth, screenHeight ) == false )
 	{
-		return false;
+		return M_FAIL;
 	}
-	return true;
+	return M_SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-// µ¥ÀÌÅÍ ÇØÁ¦
+// ë°ì´í„° í•´ì œ
 //
 void MFramework::ReleaseFramework()
 {
@@ -82,40 +83,40 @@ void MFramework::ReleaseFramework()
 //
 // void ResizeWindow(HWND hWnd, UINT NewWidth,UINT NewHeight)
 //
-// Ã¢¸ðµåÀÇ °æ¿ì ÇØ»óµµ »çÀÌÁî¿¡ ¸ÂÃß¾î ÀüÃ¼ À©µµ¿ì Å©±â¸¦ ÀçÁ¶Á¤
+// ì°½ëª¨ë“œì˜ ê²½ìš° í•´ìƒë„ ì‚¬ì´ì¦ˆì— ë§žì¶”ì–´ ì „ì²´ ìœˆë„ìš° í¬ê¸°ë¥¼ ìž¬ì¡°ì •
 // ex)
-// Å¬¶óÀÌ¾ðÆ® ¿µ¿ªÀ» µé¾î¿Â °¡·Î ¼¼·Î°ª¿¡ ¸ÂÃß¾î ÀüÃ¼ À©µµ¿ìÀÇ Å©±â¸¦ Àçº¸Á¤
-// -> ±×·¡¾ß °ÔÀÓ ÀÌ¹ÌÁö°¡ ¸ðµÎ È­¸é¿¡ º¸ÀÓ
-// ÀÎÀÚ : Å¬¶óÀÌ¾ðÆ® ¿µ¿ªÀÇ Å©±â NewWidth, NewHeight
-// ¸®ÅÏ°ª ¾øÀ½
+// í´ë¼ì´ì–¸íŠ¸ ì˜ì—­ì„ ë“¤ì–´ì˜¨ ê°€ë¡œ ì„¸ë¡œê°’ì— ë§žì¶”ì–´ ì „ì²´ ìœˆë„ìš°ì˜ í¬ê¸°ë¥¼ ìž¬ë³´ì •
+// -> ê·¸ëž˜ì•¼ ê²Œìž„ ì´ë¯¸ì§€ê°€ ëª¨ë‘ í™”ë©´ì— ë³´ìž„
+// ì¸ìž : í´ë¼ì´ì–¸íŠ¸ ì˜ì—­ì˜ í¬ê¸° NewWidth, NewHeight
+// ë¦¬í„´ê°’ ì—†ìŒ
 //
 
 void MFramework::ResizeWindow( HWND hWnd, UINT NewWidth, UINT NewHeight )
 {
-	// ÇöÀç À©µµ¿ìÀÇ ½ºÅ¸ÀÏ ±¸ÇÏ±â
+	// í˜„ìž¬ ìœˆë„ìš°ì˜ ìŠ¤íƒ€ì¼ êµ¬í•˜ê¸°
 	RECT oldrc;
 	DWORD style = ( DWORD ) ::GetWindowLong( hWnd, GWL_STYLE );
 	DWORD exstyle = ( DWORD ) ::GetWindowLong( hWnd, GWL_EXSTYLE );
 
-	// ÇöÀç À©µµ¿ì 'ÀüÃ¼' Å©±â ( ½ºÅ©¸° ÁÂÇ¥ )¸¦ ¾ò´Â´Ù.
+	// í˜„ìž¬ ìœˆë„ìš° 'ì „ì²´' í¬ê¸° ( ìŠ¤í¬ë¦° ì¢Œí‘œ )ë¥¼ ì–»ëŠ”ë‹¤.
 	::GetWindowRect( hWnd, &oldrc );
 
-	//»õ·Î »ý¼ºµÉ À©µµ¿ìÀÇ Å¬¶óÀÌ¾ðÆ® ¿µ¿ª °è»êÇÏ±â
+	//ìƒˆë¡œ ìƒì„±ë  ìœˆë„ìš°ì˜ í´ë¼ì´ì–¸íŠ¸ ì˜ì—­ ê³„ì‚°í•˜ê¸°
 	RECT newrc;
 	newrc.left = 0;			newrc.top = 0;
 	newrc.right = NewWidth; newrc.bottom = NewHeight;
 
-	//newrc ¸¸Å­ÀÇ Å¬¶óÀÌ¾ðÆ® ¿µ¿ªÀ» Æ÷ÇÔÇÏ´Â À©µµ¿ì ÀüÃ¼ Å©±â¸¦ ±¸ÇÔ
-	//¸Þ´º´Â ¾ø´Ù´Â °¡Á¤ÇÏ¿¡ Ã³¸®
-	//°è»êµÈ °á°ú¸¦ ´Ù½Ã newrc¿¡ ³Ö¾îÁØ´Ù ( ½ºÅ©¸° ÁÂÇ¥ )
+	//newrc ë§Œí¼ì˜ í´ë¼ì´ì–¸íŠ¸ ì˜ì—­ì„ í¬í•¨í•˜ëŠ” ìœˆë„ìš° ì „ì²´ í¬ê¸°ë¥¼ êµ¬í•¨
+	//ë©”ë‰´ëŠ” ì—†ë‹¤ëŠ” ê°€ì •í•˜ì— ì²˜ë¦¬
+	//ê³„ì‚°ëœ ê²°ê³¼ë¥¼ ë‹¤ì‹œ newrcì— ë„£ì–´ì¤€ë‹¤ ( ìŠ¤í¬ë¦° ì¢Œí‘œ )
 	//exstyle &= ~WS_EX_TOPMOST;
 	::AdjustWindowRectEx( &newrc, style, NULL, exstyle );
 
-	//º¸Á¤µÈ À©µµ¿ìÀÇ ³Êºñ¿Í ÆøÀ» ±¸ÇÔ
+	//ë³´ì •ëœ ìœˆë„ìš°ì˜ ë„ˆë¹„ì™€ í­ì„ êµ¬í•¨
 	int width = ( newrc.right - newrc.left );
 	int height = ( newrc.bottom - newrc.top );
 
-	// »õ·Î¿î Å©±â¸¦ À©µµ¿ì¿¡ ¼³Á¤
+	// ìƒˆë¡œìš´ í¬ê¸°ë¥¼ ìœˆë„ìš°ì— ì„¤ì •
 	::SetWindowPos( hWnd, HWND_NOTOPMOST,
 		oldrc.left, oldrc.top,
 		width, height, SWP_SHOWWINDOW );
@@ -124,11 +125,11 @@ void MFramework::ResizeWindow( HWND hWnd, UINT NewWidth, UINT NewHeight )
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // 
-// int MessagePump() : À©µµ¿ì ¸Þ½ÃÁö Ã³¸® ÇÔ¼ö.
+// int MessagePump() : ìœˆë„ìš° ë©”ì‹œì§€ ì²˜ë¦¬ í•¨ìˆ˜.
 //
-// º¸´Ù ºü¸¥ ¸Þ½ÃÁö Ã³¸®¸¦ À§ÇØ ¸Þ½ÃÁö ÆßÇÁ¸¦ ¼öÁ¤ÇÑ´Ù.
-// À©µµ¿ìÁî OS ·ÎºÎÅÍ ÀÌ ¾îÇÃ¸®ÄÉÀÌ¼ÇÀ¸·Î Æ¯º°È÷ ¸Þ½ÃÁö°¡ ³¯¾Æ¿ÀÁö ¾Ê´Â´Ù¸é
-// °ÔÀÓÀ» ÁøÇà.
+// ë³´ë‹¤ ë¹ ë¥¸ ë©”ì‹œì§€ ì²˜ë¦¬ë¥¼ ìœ„í•´ ë©”ì‹œì§€ íŽŒí”„ë¥¼ ìˆ˜ì •í•œë‹¤.
+// ìœˆë„ìš°ì¦ˆ OS ë¡œë¶€í„° ì´ ì–´í”Œë¦¬ì¼€ì´ì…˜ìœ¼ë¡œ íŠ¹ë³„ížˆ ë©”ì‹œì§€ê°€ ë‚ ì•„ì˜¤ì§€ ì•ŠëŠ”ë‹¤ë©´
+// ê²Œìž„ì„ ì§„í–‰.
 //
 int MFramework::MessagePump()
 {
@@ -136,22 +137,22 @@ int MFramework::MessagePump()
 
 	while ( true )
 	{
-		//¸Þ½ÃÁö Å¥¿¡ ¸Þ½ÃÁö°¡ ÀÖ´Ù¸é Ã³¸®.
+		//ë©”ì‹œì§€ íì— ë©”ì‹œì§€ê°€ ìžˆë‹¤ë©´ ì²˜ë¦¬.
 		if ( ::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 		{
-			if ( msg.message == WM_QUIT ) // À©µµ¿ì Á¾·á¸¦ À§ÇØ ¸®ÅÏ
-				return FALSE;
-			// ³ª¸ÓÁö Ã³¸®
+			if ( msg.message == WM_QUIT ) // ìœˆë„ìš° ì¢…ë£Œë¥¼ ìœ„í•´ ë¦¬í„´
+				return M_FAIL;
+			// ë‚˜ë¨¸ì§€ ì²˜ë¦¬
 			::TranslateMessage( &msg );
 			::DispatchMessage( &msg );
 		}
-		else // Æ¯º°ÇÑ ¸Þ½ÃÁö°¡ ¾ø´Ù¸é ·»´õ¸µ ÁøÇà
+		else // íŠ¹ë³„í•œ ë©”ì‹œì§€ê°€ ì—†ë‹¤ë©´ ë Œë”ë§ ì§„í–‰
 		{
 			GameLoop();
-			return TRUE;
+			return M_SUCCESS;
 		}
 	}
-	return FALSE;
+	return M_FAIL;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +167,7 @@ void MFramework::GameLoop()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-// °£´ÜÇÑ ¼³¸í Ãâ·Â¿ë
+// ê°„ë‹¨í•œ ì„¤ëª… ì¶œë ¥ìš©
 //
 void MFramework::ShowInfo()
 {
@@ -174,25 +175,25 @@ void MFramework::ShowInfo()
 
 	if ( rendererInst == nullptr )
 		return;
-	// °£´ÜÇÑ ¿À´ÃÀÇ ÇÒ ¸»
+	// ê°„ë‹¨í•œ ì˜¤ëŠ˜ì˜ í•  ë§
 	{
 		int x = 300, y = 50;
 		COLORREF col = RGB( 255, 255, 255 );
-		rendererInst->DrawText( x, y, col, "¡á %s", m_windowName );
+		rendererInst->DrawText( x, y, col, "â–  %s", m_windowName );
 
 		y += 24;
 		char* msg =
-			"1.±âº»ÇÁ·¹ÀÓ¿÷ ±¸Ãà.\n"
-			"2.SW ·»´õ¸µ µð¹ÙÀÌ½º(Device) ¸¦ »ý¼º.\n"
-			"3.Idle ½Ã°£¿¡ ·»´õ¸µÀ» ¼öÇà.\n"
-			"4.Swap(Flipping) chain À» ±¸Çö.";
+			"1.ê¸°ë³¸í”„ë ˆìž„ì› êµ¬ì¶•.\n"
+			"2.SW ë Œë”ë§ ë””ë°”ì´ìŠ¤(Device) ë¥¼ ìƒì„±.\n"
+			"3.Idle ì‹œê°„ì— ë Œë”ë§ì„ ìˆ˜í–‰.\n"
+			"4.Swap(Flipping) chain ì„ êµ¬í˜„.";
 		rendererInst->DrawText( x, y, RGB( 255, 255, 255 ), msg );
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-// ¸Þ½ÃÁö ÇÁ·Î½ÃÀú ÀÏ´ÜÀº ÇÁ·¹ÀÓ¿öÅ©¿¡¼­ ´Ù·çµµ·Ï ÇÔ.
+// ë©”ì‹œì§€ í”„ë¡œì‹œì € ì¼ë‹¨ì€ í”„ë ˆìž„ì›Œí¬ì—ì„œ ë‹¤ë£¨ë„ë¡ í•¨.
 //
 LRESULT CALLBACK MFramework::MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
