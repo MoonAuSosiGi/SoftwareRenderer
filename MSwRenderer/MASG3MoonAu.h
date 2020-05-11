@@ -1,18 +1,7 @@
-﻿#pragma once
+#pragma once
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-//
-#define MASG_INVALIED(res) ((res) == nullptr)
-#define MASG_VALIED(res) ((res) != nullptr)
-#define MASG_FAILED(res) ((res) < 0)
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-//
-#include <assert.h>
-#define ASSERT(Val) assert((Val))
-
-#define M_FAIL			-1
-#define M_SUCCESS		0
+#include "MASG3Define.h"
+#include "MASG3Math.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +84,7 @@ typedef MASG3MOONAUDEVICE9*	LPMASG3DEVICE9;
 /////////////////////////////////////////////////////////////////////////////////////////////
 class MASG3VertexBuffer9
 {
-	friend class MASG3Device9;
+	friend class MASG3MoonAuDevice9;
 protected:
 	void* m_pVBuffer;		// 정점 버퍼 : 실제 데이터가 저장됨
 	
@@ -147,7 +136,7 @@ public:
 	int CreateDevice( HWND hWnd,						// [in] 디바이스의 렌더링 목표 윈도우 핸들
 					  MASG3PRESENT_PARAMETERS* pp,		// [in] 디바이스 화면 구성 정보
 					  DWORD vp,							// [in] 정점 연산 방법 결정 (현재는 SW 만)
-					  LPMASG3DEVICE9* pDev				// [out] 성공시 리턴받을 디바이스 개체 포인터
+					  LPMASG3DEVICE9* ppDevice			// [out] 성공시 리턴받을 디바이스 개체 포인터
 		);
 };
 
@@ -200,4 +189,46 @@ protected:
 	int _GeometryPipeLine();
 	int _PixelPipeLine();
 
+	int _DrawLine( MASG3VECTOR2& start, MASG3VECTOR2& end );
+
+protected:
+	MASG3MoonAuDevice9( void ); // 객체 생성 방지.
+public:
+	virtual ~MASG3MoonAuDevice9( void );
+
+	HDC			GetRT();
+	COLORREF	GetBkColor();
+
+	int			BeginScene();
+	int			EndScene();
+	int			Present();
+	int			ClearColor( COLORREF color );
+
+	// 정점 버퍼 생성
+	int CreateVertexBuffer(
+							UINT Length,					// [in] 정점 버퍼의 전체 크기 (바이트)	
+							DWORD FVF,						// [in] 정점 규격.
+							MASG3_MAPOOL Pool,				// [in] 시스템메모리 사용
+							LPMASG3VERTEXBUFFER9* ppVB		// [out] 성공시 리턴되는 버퍼 포인터
+						);
+
+	// 디바이스에 정점 버퍼 등록
+	int SetVertexBuffer(
+							LPMASG3VERTEXBUFFER9 pVB,			// 렌더링할 버퍼 포인터. 
+							UINT Stride							// 렌더링할 버퍼의 1마디(정점데이터) 크기
+						);
+
+	// 정점 버퍼 규격 등록
+	int SetFVF( DWORD FVF ); // 렌더링할 정점버퍼의 규격
+	
+	// 실제 렌더링 -> 이전에 등록된 정점 버퍼 사용
+	int DrawPrimitive(
+							MASG3PRIMITIVETYPE PrimitiveType,	// 렌더링 기하 타입
+							UINT StartVertex,					// 렌더링할 정점버퍼 시작 정점 인덱스
+							UINT PrimitiveCount					// 렌더링할 도형 갯수 
+					);
+	// 렌더링 상태를 조절
+	int SetRenderState( DWORD state, DWORD value );
 };
+
+#define SetStreamSource SetVertexBuffer

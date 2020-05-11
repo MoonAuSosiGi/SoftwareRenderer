@@ -147,13 +147,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MASG3MoonAu.cpp" />
     <ClCompile Include="MFramework.cpp" />
     <ClCompile Include="MSwRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MEngine.h" />
+    <ClInclude Include="MASG3Define.h" />
+    <ClInclude Include="MASG3Math.h" />
+    <ClInclude Include="MASG3MoonAu.h" />
     <ClInclude Include="MFramework.h" />
     <ClInclude Include="MSwRenderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

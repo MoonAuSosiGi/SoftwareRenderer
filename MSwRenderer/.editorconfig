@@ -1,0 +1,6 @@
+root = true
+
+# 설정법은 https://editorconfig.org/
+
+[*]
+charset = utf-8

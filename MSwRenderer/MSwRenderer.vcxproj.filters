@@ -24,6 +24,9 @@
     <ClCompile Include="MSwRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="MASG3MoonAu.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MSwRenderer.h">
@@ -32,8 +35,17 @@
     <ClInclude Include="MFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MEngine.h">
+    <ClInclude Include="MASG3Math.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="MASG3MoonAu.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MASG3Define.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
   </ItemGroup>
 </Project>
