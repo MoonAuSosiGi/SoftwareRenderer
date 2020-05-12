@@ -74,7 +74,7 @@ class MASG3MoonAuDevice9;
 typedef MASG3MoonAuDevice9	MASG3MOONAUDEVICE9;	// DX 9
 typedef MASG3MOONAUDEVICE9*	LPMASG3DEVICE9;
 
-#define MASG_VERSION	9
+#define MASG3_VERSION	9
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 //

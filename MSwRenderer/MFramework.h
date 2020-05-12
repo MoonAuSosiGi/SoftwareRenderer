@@ -9,6 +9,8 @@
 
 
 #include <Windows.h>
+#include "MASG3MoonAu.h"
+
 class MFramework
 {
 private:
@@ -20,12 +22,22 @@ private:
 	LPSTR m_className = "MoonAuSosiGi SW-Renderer";
 	LPSTR m_windowName = "MoonAuSosiGi SW-Renderer";
 
+	MASG3DISPLAYMODE m_displayMode;
+	// MoonAu
+	LPMASG3MOONAU m_pMASG = nullptr;
+	// Device
+	LPMASG3DEVICE9 m_pDevice = nullptr;	
+
+	// 시스템 폰트
+	HFONT m_hSysFont;
+	COLORREF m_SysFnColor = RGB( 0, 255, 0 );
+
 private:
 	MFramework();
 public:
 	static MFramework* GetInstance();
 	
-	bool SetupFramework( int screenWidth, int screenHeight );
+	int SetupFramework( int screenWidth, int screenHeight );
 	void ReleaseFramework();
 
 	// 리사이즈시 호출되는 함수 
@@ -45,9 +57,11 @@ public:
 	static LRESULT CALLBACK MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
 private:
-	// -------------------------- //
-	// Scene Render & update
-	// ------------------------- //
-	void SceneRender();
-	void SceneUpdate();
+	int _CreateRenderDevice();
+	void _SceneRender();
+	void _SceneUpdate();
+	void _DrawFPS( int x, int y );
+	int _DrawText( int x, int y, COLORREF col, char* msg, ... );
+
+	void _DrawTestObject();
 };

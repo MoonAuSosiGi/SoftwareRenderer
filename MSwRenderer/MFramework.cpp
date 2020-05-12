@@ -1,6 +1,6 @@
 ﻿#include "MFramework.h"
-#include "MSwRenderer.h"
 #include "MASG3MoonAu.h"
+#include <stdio.h>
 
 MFramework* MFramework::m_instance = nullptr;
 
@@ -24,7 +24,7 @@ MFramework* MFramework::GetInstance()
 //
 //  플랫폼 세팅 및 데이터 로드. 현재 windows 기준으로 작성되었다.
 //
-bool MFramework::SetupFramework( int screenWidth, int screenHeight )
+int MFramework::SetupFramework( int screenWidth, int screenHeight )
 {
 	// ---------------------------------------------------------------------//
 // 윈도우 클래스 구조체 등록
@@ -62,8 +62,11 @@ bool MFramework::SetupFramework( int screenWidth, int screenHeight )
 	//클라이언트 영역 크기 재조정 
 	ResizeWindow( m_hWnd, screenWidth, screenHeight );
 
+	m_displayMode.Width = static_cast< DWORD >( screenWidth );
+	m_displayMode.Height = static_cast< DWORD > ( screenHeight );
+
 	// SW Renderer 세팅
-	if ( MSWRenderer::GetInstance()->SetupDevice( m_hWnd, screenWidth, screenHeight ) == false )
+	if ( _CreateRenderDevice() == M_FAIL )
 	{
 		return M_FAIL;
 	}
@@ -76,7 +79,12 @@ bool MFramework::SetupFramework( int screenWidth, int screenHeight )
 //
 void MFramework::ReleaseFramework()
 {
-	MSWRenderer::GetInstance()->ReleaseDevice();
+	// 폰트 제거
+	DeleteObject( m_hSysFont );
+
+	// 생성된 역순으로 제거 --> 그렇게 설계되어있다고 가정
+	SAFE_DELETE( m_pDevice );
+	SAFE_DELETE( m_pMASG );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -161,8 +169,8 @@ int MFramework::MessagePump()
 //
 void MFramework::GameLoop()
 {
-	SceneRender();
-	SceneUpdate();
+	_SceneRender();
+	_SceneUpdate();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -171,23 +179,18 @@ void MFramework::GameLoop()
 //
 void MFramework::ShowInfo()
 {
-	MSWRenderer* rendererInst = MSWRenderer::GetInstance();
-
-	if ( rendererInst == nullptr )
-		return;
+	if ( MASG_INVALIED(m_pDevice) )	return;
 	// 간단한 오늘의 할 말
 	{
 		int x = 300, y = 50;
 		COLORREF col = RGB( 255, 255, 255 );
-		rendererInst->DrawText( x, y, col, "■ %s", m_windowName );
+		_DrawText( x, y, col, "■ %s", m_windowName );
 
 		y += 24;
 		char* msg =
-			"1.기본프레임웍 구축.\n"
-			"2.SW 렌더링 디바이스(Device) 를 생성.\n"
-			"3.Idle 시간에 렌더링을 수행.\n"
-			"4.Swap(Flipping) chain 을 구현.";
-		rendererInst->DrawText( x, y, RGB( 255, 255, 255 ), msg );
+			"1. DirectX 9 Device 흉내 \n"
+			"2. Line 그리기";
+		_DrawText( x, y, RGB( 255, 255, 255 ), msg );
 	}
 }
 
@@ -208,23 +211,85 @@ LRESULT CALLBACK MFramework::MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
+// Create Device -> DirectX 9 디바이스 생성처럼 이루어짐
+//
+int MFramework::_CreateRenderDevice()
+{
+	m_pMASG = MASG3MoonAuCreate9( MASG3_VERSION );
+
+	if ( MASG_INVALIED( m_pMASG ) )
+	{
+		return M_FAIL;
+	}
+
+	// 디스플레이 정보 구성
+	MASG3PRESENT_PARAMETERS pp;
+	ZeroMemory( &pp, sizeof( pp ) );
+	pp.Width = m_displayMode.Width;
+	pp.Height = m_displayMode.Height;
+	pp.BackBuffercnt = 1;				// 백버퍼 갯수 -> 현재 1만 지원
+	pp.Windowed = true;					// 창모드 @todo 풀스크린
+
+
+	// 렌더링 디바이스 생성
+	m_pMASG->CreateDevice( m_hWnd,
+							&pp,
+							MASG3_CREATE_SOFTWARE_VERTEXPROCESSING,
+							&m_pDevice
+						);
+
+	if ( MASG_INVALIED( m_pDevice ) )
+	{
+		return M_FAIL;
+	}
+
+	// -- 디바이스 기본 상태 옵션 결정할 곳
+
+	// --
+
+	// 시스템 폰트 생성.
+	//
+	m_hSysFont = CreateFont(
+		12, 6,
+		0, 0, 1, 0, 0, 0,
+		DEFAULT_CHARSET,	//HANGUL_CHARSET  
+		OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		FF_DONTCARE,
+		( LPSTR )"굴림"
+	);
+	if ( MASG_INVALIED( m_hSysFont ) )
+	{
+		// error..! 
+		return M_FAIL;
+	}
+	SelectObject( m_pDevice->GetRT(), m_hSysFont );
+
+	return M_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 // Scene Render
 //
-void MFramework::SceneRender()
+void MFramework::_SceneRender()
 {
-	MSWRenderer* rendererInst = MSWRenderer::GetInstance();
-
-	if ( rendererInst != nullptr )
+	if ( MASG_VALIED( m_pDevice ) )
 	{
-		rendererInst->BeginScene();
+		m_pDevice->BeginScene();
 		{
-			rendererInst->ClearColor( RGB( 128, 0, 0 ) );
-			rendererInst->DrawFPS( 1, 1 );
+			m_pDevice->ClearColor( RGB( 128, 0, 0 ) );
+
+			// 테스트 드로우!
+			_DrawTestObject();
+
+			_DrawFPS(1,1);
 			ShowInfo();
 		}		
-		rendererInst->EndScene();
+		m_pDevice->EndScene();
 		
-		rendererInst->Present();
+		m_pDevice->Present();
 	}
 }
 
@@ -233,7 +298,75 @@ void MFramework::SceneRender()
 //
 // Scene Update
 //
-void MFramework::SceneUpdate()
+void MFramework::_SceneUpdate()
+{
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// 
+// Draw FPS
+//
+void MFramework::_DrawFPS( int x, int y )
+{
+	if ( MASG_INVALIED( m_pDevice ) ) return;
+
+	HDC hdc = m_pDevice->GetRT();
+
+	static int frm = 0;
+	static UINT oldtime = GetTickCount();
+	static UINT frmcnt = 0;
+	static float  fps = 0.0f;
+
+	++frmcnt;
+
+	char msg[80];
+	int time = GetTickCount() - oldtime;
+	if ( time >= 999 )						// 0~999 밀리세컨드.. 1~1000이 아님
+	{
+		oldtime = GetTickCount();
+
+		//1초간 증가된 프레임 수를 구합니다..
+		frm = frmcnt;	frmcnt = 0;
+
+		//초당 프래임 수를 계산합니다.
+		fps = ( float ) ( frm * 1000 ) / ( float ) time;
+	}
+
+	SetTextColor( hdc, m_SysFnColor );
+	sprintf( msg, "fps=%.1f/%d    ", fps, time );
+	TextOut( hdc, x, y, msg, ( int ) strlen( msg ) );
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// DrawText
+// TEXT 출력
+//
+int MFramework::_DrawText( int x, int y, COLORREF col, char* msg, ... )
+{
+	if ( MASG_INVALIED( m_pDevice ) ) return M_FAIL;
+
+	HDC hdc = m_pDevice->GetRT();
+	va_list vl;
+	char buff[4096] = "";
+	va_start( vl, msg );
+	vsprintf( buff, msg, vl );
+	RECT rc = { x, y, x + 800, y + 600 };
+
+	SetTextColor( hdc, col );
+	int res = ::DrawText( hdc, buff, ( int ) strlen( buff ), &rc, DT_WORDBREAK );
+	SetTextColor( hdc, m_SysFnColor );
+
+	return res;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// DrawTestObject
+// SW 렌더러 기능을 하나씩 테스트하는 공간
+//
+void MFramework::_DrawTestObject()
 {
 
 }

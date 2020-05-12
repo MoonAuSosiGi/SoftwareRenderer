@@ -149,14 +149,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MASG3MoonAu.cpp" />
     <ClCompile Include="MFramework.cpp" />
-    <ClCompile Include="MSwRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MASG3Define.h" />
     <ClInclude Include="MASG3Math.h" />
     <ClInclude Include="MASG3MoonAu.h" />
     <ClInclude Include="MFramework.h" />
-    <ClInclude Include="MSwRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
