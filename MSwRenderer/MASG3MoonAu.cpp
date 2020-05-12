@@ -1,4 +1,4 @@
-#include "MASG3MoonAu.h"
+﻿#include "MASG3MoonAu.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -228,7 +228,7 @@ int MASG3MoonAuDevice9::EndScene()
 int MASG3MoonAuDevice9::ClearColor( COLORREF color )
 {
 	HBRUSH hBrush = CreateSolidBrush( color );
-	RECT rc = { 0, 0, m_PresentParam.Width, m_PresentParam.Height };
+	RECT rc = { 0, 0, static_cast< long >( m_PresentParam.Width ), static_cast< long >( m_PresentParam.Height ) };
 	FillRect( m_hSurfaceRT, &rc, hBrush );
 	DeleteObject( hBrush );
 

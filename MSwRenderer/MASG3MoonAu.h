@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "MASG3Define.h"
 #include "MASG3Math.h"

@@ -1,6 +1,6 @@
-root = true
+﻿root = true
 
 # 설정법은 https://editorconfig.org/
 
 [*]
-charset = utf-8
+charset = utf-16
