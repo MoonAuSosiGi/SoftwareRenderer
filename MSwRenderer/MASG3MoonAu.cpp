@@ -359,6 +359,47 @@ int MASG3MoonAuDevice9::_GeometryPipeLine()
 //
 int MASG3MoonAuDevice9::_PixelPipeLine()
 {
+	// 정점 갯수 확인
+	UINT vtxCnt = m_pVB->m_SizeInByte / m_Stride;
+
+	// 원본 버퍼 얻기
+	void* pOrgVB = m_pVB->_GetBuffer();
+
+	BYTE* pCurrVB = ( BYTE* ) pOrgVB;	// 현재 처리중인 정점버퍼의 주소
+	BYTE* pCurrVtx = nullptr;			// 현재 처리중인 정점 주소
+	UINT faceCnt = 0;
+
+	// Triangle List를 먼저 처리. -> Face 마다 3개의 정점 사용
+	for ( UINT i = m_StartVtx; i < vtxCnt; i += 3 )
+	{
+		// 현재 기하 데이터 포인터 얻기
+		pCurrVB = ( BYTE* ) pOrgVB + ( i ) * m_Stride;
+
+		// 첫번째 정점
+		pCurrVtx = pCurrVB;
+		MASG3VECTOR2 v0 = *( MASG3VECTOR2* ) pCurrVtx;
+
+		// 두번째 정점
+		pCurrVtx = pCurrVB + m_Stride;
+		MASG3VECTOR2 v1 = *( MASG3VECTOR2* ) pCurrVtx;
+
+		// 세번째 정점
+		pCurrVtx = pCurrVB + m_Stride * 2;
+		MASG3VECTOR2 v2 = *( MASG3VECTOR2* ) pCurrVtx;
+
+		// 라인 그리기
+		// v0 - v1
+		_DrawLine( v0, v1 );
+		// v0 - v2
+		_DrawLine( v0, v2 );
+		// v1 - v2
+		_DrawLine( v1, v2 );
+
+		// 지정 갯수 이상의 삼각형이 그려지면 끝
+		if ( ++faceCnt >= m_PrimCnt )
+			break;
+	}
+
 	return M_SUCCESS;
 }
 
@@ -368,6 +409,11 @@ int MASG3MoonAuDevice9::_PixelPipeLine()
 //
 int MASG3MoonAuDevice9::_DrawLine( MASG3VECTOR2& start, MASG3VECTOR2& end )
 {
+	// GDI 작업 
+	// @todo 직접 라인 그리기
+	MoveToEx( m_hSurfaceRT, ( int ) start.x, ( int ) start.y, nullptr );
+	LineTo( m_hSurfaceRT, ( int ) end.x, ( int ) end.y );
+
 	return M_SUCCESS;
 }
 

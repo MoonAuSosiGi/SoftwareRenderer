@@ -32,6 +32,9 @@ private:
 	HFONT m_hSysFont;
 	COLORREF m_SysFnColor = RGB( 0, 255, 0 );
 
+	// 테스트 오브젝트 렌더링용
+	LPMASG3VERTEXBUFFER9 m_pVB;
+
 private:
 	MFramework();
 public:
@@ -63,5 +66,11 @@ private:
 	void _DrawFPS( int x, int y );
 	int _DrawText( int x, int y, COLORREF col, char* msg, ... );
 
+	int _LoadData();
+	void _ReleaseData();
+
+	// @todo 추후 이동할 함수. 테스트용으로 둠
+	int _InitVB();
 	void _DrawTestObject();
+	
 };

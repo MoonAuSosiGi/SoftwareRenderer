@@ -40,7 +40,7 @@ enum MASG3_MAPOOL
 {
 	MASG3POOL_DEFAULT = 1,	// 기본값 : 비디오 메모리 사용
 	MASG3POOL_MANAGED,		// 자동관리 : 비디오 - 시스템 혼용
-	MAS3GPOOL_SYSTEM			// 시스템 메모리 사용 ( 이 옵션만 유효하다 현재 )
+	MASG3POOL_SYSTEM		// 시스템 메모리 사용 ( 이 옵션만 유효하다 현재 )
 };
 
 // 기하 도형 타입

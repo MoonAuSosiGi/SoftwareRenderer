@@ -66,7 +66,13 @@ int MFramework::SetupFramework( int screenWidth, int screenHeight )
 	m_displayMode.Height = static_cast< DWORD > ( screenHeight );
 
 	// SW Renderer 세팅
-	if ( _CreateRenderDevice() == M_FAIL )
+	if ( MASG_FAILED( _CreateRenderDevice() ) )
+	{
+		return M_FAIL;
+	}
+
+	// 데이터 로드
+	if ( MASG_FAILED( _LoadData() ) )
 	{
 		return M_FAIL;
 	}
@@ -79,6 +85,8 @@ int MFramework::SetupFramework( int screenWidth, int screenHeight )
 //
 void MFramework::ReleaseFramework()
 {
+	_ReleaseData();
+
 	// 폰트 제거
 	DeleteObject( m_hSysFont );
 
@@ -361,6 +369,75 @@ int MFramework::_DrawText( int x, int y, COLORREF col, char* msg, ... )
 
 	return res;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// Load Data 실제 필요한 데이터는 여기서 로드
+//
+int MFramework::_LoadData()
+{
+	// 정점 버퍼 생성
+	_InitVB();
+	return M_SUCCESS;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// ReleaseData 데이터 제거
+//
+void MFramework::_ReleaseData()
+{
+	SAFE_DELETE( m_pVB );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+// InitVB
+// 테스트용 객체 버텍스 버퍼 생성
+//
+
+struct COLVTX
+{
+	float x, y;
+};
+#define FVF_COLVTX (MASG3FVF_XY)
+
+int MFramework::_InitVB()
+{
+	COLVTX Vertices[]{
+		//Face 0 : 정삼각형.★
+		{  50.0f, 250.0f },		//v0
+		{ 150.0f,  50.0f },		//v1
+		{ 250.0f, 250.0f },		//v2
+	};
+
+	// 정점 버퍼 생성
+	if ( MASG_FAILED( m_pDevice->CreateVertexBuffer(
+		sizeof( Vertices ),		// 정점 버퍼 크기 (바이트)
+		FVF_COLVTX,				// 정점 규격
+		MASG3POOL_SYSTEM,		// 시스템 메모리 사용
+		&m_pVB					// 성공시 리턴되는 버퍼 포인터
+		) ) )
+	{
+		return M_FAIL;
+	}
+
+	// 버퍼 주소 얻기 -> 실제 DX 와는 역할이 다르지만 동작 결과는 동일하도록 함
+	VOID* pBuff;
+	if ( MASG_FAILED( m_pVB->Lock( 0, ( void** ) &pBuff ) ) )
+	{
+		return M_FAIL;
+	}
+
+	// 버퍼 정점 데이터 채우기
+	memcpy( pBuff, Vertices, sizeof( Vertices ) );
+
+	// DX에서는 획득한 메모리의 관리를 위해 unlock을 하지만 여기선 동작하지 않음. 
+	m_pVB->Unlock();
+
+	return M_SUCCESS;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // DrawTestObject
@@ -368,5 +445,13 @@ int MFramework::_DrawText( int x, int y, COLORREF col, char* msg, ... )
 //
 void MFramework::_DrawTestObject()
 {
+	// 정점 버퍼 등록
+	m_pDevice->SetStreamSource( m_pVB, sizeof( COLVTX ) );
+
+	// 정점 규격 설정
+	m_pDevice->SetFVF( FVF_COLVTX );
+
+	// 렌더링! 
+	m_pDevice->DrawPrimitive( MASG3_TRIANGLELIST, 0, 2 );
 
 }
