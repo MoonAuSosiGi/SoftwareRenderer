@@ -1,4 +1,5 @@
 ﻿#include "MASG3MoonAu.h"
+#include <math.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -411,8 +412,123 @@ int MASG3MoonAuDevice9::_DrawLine( MASG3VECTOR2& start, MASG3VECTOR2& end )
 {
 	// GDI 작업 
 	// @todo 직접 라인 그리기
-	MoveToEx( m_hSurfaceRT, ( int ) start.x, ( int ) start.y, nullptr );
-	LineTo( m_hSurfaceRT, ( int ) end.x, ( int ) end.y );
+
+	// 직선의 방정식
+	// 1 y = mx + b   
+	//    m : 기울기  dy / dx 실수
+	// 2 ax + by + c = 0  
+	//   y = - (a/b)x  -(c/b) 마찬가지로 실수
+
+	// 실제의 직선은 실수로 이어진 직선이지만,
+	// 컴퓨터 화면은 픽셀로 되어 있어 정수로 표현된다. 
+	// 따라서, 실수 계산을 하더라도, 정수로 표현해야함. 
+	
+	// DDA 알고리즘
+	// * 실수 곱이 필요 없음
+	// * 실수 덧셈은 있음
+
+	// 브레슨햄 알고리즘
+	// * 실수 연산이 필요 없음
+	// * 오로지 정수 연산
+	// xi , yi 를 지정하고, 직선의 방정식과 가장 가까운 정수 좌표에 픽셀을 찍음
+
+	// y = mx +b
+	// yi +1    d2
+	// y
+	// yi -1    d1   d1이 크면, yi+1 에 찍고, d2가 크면 yi-1에 찍는다.
+	// d1 - d2 
+
+	int stX = ( int ) start.x;
+	int stY = ( int ) start.y;
+	int edX = ( int ) end.x;
+	int edY = ( int ) end.y;
+	// x, y 가 정해졌다고 가정 (stX, stY) 
+	// y = mx+b 
+	int dx = abs((int)(end.x - start.x));
+	int dy = abs((int)(end.y - start.y));
+
+	COLORREF color = RGB( 255, 255, 255 );
+
+	int inc_2dy = 2 * dy;
+	int inc_2dydx = 2 * ( dy - dx );
+	int ndx = 0;
+	int x1 = start.x, x2 = end.x;
+	int y1 = start.y, y2 = end.y;
+	int inc_value = 1;
+	int p_value = 0;
+
+	// x의 변화량이 더 클떄 ( y값을 정해주어야 함 )
+	if ( dx >= dy )
+	{
+		if ( end.x < start.x )
+		{
+			ndx = x1;
+			x1 = x2;
+			x2 = ndx;
+
+			ndx = y1;
+			y1 = y2;
+			y2 = ndx;
+		}
+
+		if ( y1 < y2 )  inc_value = 1;
+		else			inc_value = -1;
+
+		SetPixel( m_hSurfaceRT, x1, y1, color );
+		p_value = 2 * dy - dx;
+
+		for ( int i = x1; i < x2; i++ )
+		{
+			if ( 0 > p_value )
+				p_value += inc_2dy;
+			else
+			{
+				p_value += inc_2dydx;
+				y1 += inc_value;
+			}
+			SetPixel( m_hSurfaceRT, i, y1, color );
+		}
+	}
+	else
+	{
+		inc_2dy = 2 * dx;
+		inc_2dydx = 2 * ( dx - dy );
+
+		if ( y2 < y1 )
+		{
+			ndx = y1;
+			y1 = y2;
+			y2 = ndx;
+
+			ndx = x1;
+			x1 = x2;
+			x2 = ndx;
+		}
+
+		if ( x1 < x2 )	inc_value = 1;
+		else			inc_value = -1;
+
+		SetPixel( m_hSurfaceRT, x1, y1, color );
+
+		p_value = 2 * dx - dy;
+
+		for ( int i = y1; i < y2; i++ )
+		{
+			if ( 0 > p_value )
+				p_value += inc_2dy;
+			else
+			{
+				p_value += inc_2dydx;
+				x1 += inc_value;
+			}
+			SetPixel( m_hSurfaceRT, x1, i, color );
+		}
+
+	}
+	
+
+	//MoveToEx( m_hSurfaceRT, ( int ) start.x, ( int ) start.y, nullptr );
+	//LineTo( m_hSurfaceRT, ( int ) end.x, ( int ) end.y );
 
 	return M_SUCCESS;
 }
